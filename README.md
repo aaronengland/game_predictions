@@ -2,6 +2,8 @@
 
 A package to predict points scored for the home team and away team as well as home team win probability based on previous performance.
 
+To install, use: `pip install git+https://github.com/aaronengland/game_predictions.git`
+
 How does it work?
 
 The algorithm uses points scored by the home team when they are the home team [1], points allowed by the away team when they are the away team [2], points scored by the away team when they are the away team [3], and points allowed by the home team when they are the home team [4] to generate predictions for home points scored and away points scored.
@@ -43,6 +45,16 @@ Final predicted points scored by the home and away teams are calculated by takin
 
 [13] <img src="https://latex.codecogs.com/gif.latex?PredAwayPoints&space;=&space;\frac{\sum_{\eta&space;_{simulations}}&space;\mu&space;_{AwayPoints}}{n&space;_{simulations}}" title="PredAwayPoints = \frac{\sum_{\eta _{simulations}} \mu _{AwayPoints}}{n _{simulations}}" /></a>
 
+Argument definitions:
+- ```home_team_array```: array of the home team for each contest
+- ```home_score_array```: array of the points scored by the home team for each contest
+- ```away_team_array```: array of the away team for each contest
+- ```away_score_array```: array of the points scored by the away team for each contest
+- ```home_team```: string of the home team for the contest in which to predict
+- ```away_team```: string of the home team for the contest in which to predict
+- ```n_simulations```: number of draws from the Poisson distribution for each game (default = 1000)
+- ```weighted_mean```: a boolean for the user to determine mean points scored/allowed as a weighted average (i.e., more recent games carry more weight; True) or a [regular] average (False; default = True)
+
 Example:
 ```
 # import dependencies
@@ -61,18 +73,7 @@ game_simulation = game_predictions(home_team_array=df['home_team'],
                                    away_team='Name of Away Team',
                                    n_simulations=1000,
                                    weighted_mean=True)
-```
-Argument definitions:
-- ```home_team_array```: array of the home team for each contest
-- ```home_score_array```: array of the points scored by the home team for each contest
-- ```away_team_array```: array of the away team for each contest
-- ```away_score_array```: array of the points scored by the away team for each contest
-- ```home_team```: string of the home team for the contest in which to predict
-- ```away_team```: string of the home team for the contest in which to predict
-- ```n_simulations```: number of draws from the Poisson distribution for each game (default = 1000)
-- ```weighted_mean```: a boolean for the user to determine mean points scored/allowed as a weighted average (i.e., more recent games carry more weight; True) or a [regular] average (False; default = True)
 
-```
 # get distribution of home points
 home_points_distribution = game_simulation.home_score_prediction_list
 
@@ -88,4 +89,3 @@ predicted_away_score = game_simulation.mean_away_score
 # get the predicted win probability
 predicted_win_probability = game_simulation.prop_home_win
 ```
-To install, use: ```pip install git+https://github.com/aaronengland/game_predictions.git```
