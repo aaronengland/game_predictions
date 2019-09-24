@@ -2,12 +2,12 @@
 
 A package to predict points scored for the home team and away team as well as home team win probability based on previous performance.
 
+To install, use: `pip install git+https://github.com/aaronengland/game_predictions.git`
+
 Key assumptions:
 - `home_team` must have played at least 1 home game prior to prediction.
 - `away_team` must have played at least 1 away game prior to prediction.
 - Argument arrays must be the same length.
-
-To install, use: `pip install git+https://github.com/aaronengland/game_predictions.git`
 
 How does it work?
 
