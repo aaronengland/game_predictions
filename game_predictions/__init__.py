@@ -30,7 +30,7 @@ def game_predictions(home_team_array, home_score_array, away_team_array, away_sc
         win_pct = n_wins/n_games
         # if we have zero win pct make it .01
         if win_pct == 0:
-            win_pct == 0.01
+            win_pct = 0.01
         # append to list
         list_win_pct.append(win_pct)
 
