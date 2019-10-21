@@ -7,6 +7,7 @@ def game_predictions(home_team_array, home_score_array, away_team_array, away_sc
     # suppress the SettingWithCopyWarning
     pd.options.mode.chained_assignment = None
     
+    # create a df
     # put the arrays into a df
     df = pd.DataFrame({'home_team': home_team_array,
                        'home_score': home_score_array,
@@ -15,11 +16,11 @@ def game_predictions(home_team_array, home_score_array, away_team_array, away_sc
     # get winning team
     df['winning_team'] = df.apply(lambda x: x['home_team'] if x['home_score'] > x['away_score'] else x['away_team'], axis=1)
 
+    # get win pct for each team for weighting later
     # get all teams
     list_all_teams = list(df['home_team']) + list(df['away_team'])
     # get the unique ones
     list_teams_unique = list(dict.fromkeys(list_all_teams))
-
     # get win pct for each team
     list_win_pct = []
     for team in list_teams_unique:
@@ -36,7 +37,6 @@ def game_predictions(home_team_array, home_score_array, away_team_array, away_sc
             win_pct = 0.01
         # append to list
         list_win_pct.append(win_pct)
-
     # match win_pct with team
     df_win_pct = pd.DataFrame({'team': list_teams_unique,
                                'win_pct': list_win_pct})
@@ -54,46 +54,8 @@ def game_predictions(home_team_array, home_score_array, away_team_array, away_sc
             # 1. get mean points scored by the home team when they are the home team and points allowed by the home team when they 
             # subset to games where home_team == home_team
             df_home = df[df['home_team'] == home_team]
-            # if outer_weighted_mean == 'none'
-            if outer_weighted_mean == 'none':
-                # generate list of 1s for weights
-                list_weights = [1 for x in range(df_home.shape[0])]
-            # if outer_weighted_mean == 'time'
-            elif outer_weighted_mean == 'time':
-                # generate list of 1 to n for weights
-                list_weights = [x for x in range(1, df_home.shape[0]+1)]
-            # outer_weighted_mean == 'opp_win_pct'
-            elif outer_weighted_mean == 'opp_win_pct':
-                # get list of opponents
-                list_df_home_opp = list(df_home['away_team'])
-                # get win pct for each team in list_df_home_opp so we can use them as weights
-                list_weights = []
-                for opp in list_df_home_opp:
-                    # find index of opp in df_win_pct
-                    index_opp = list(df_win_pct['team']).index(opp)
-                    # get win pct
-                    win_pct = df_win_pct['win_pct'][index_opp]
-                    # append to list
-                    list_weights.append(win_pct)
-            # if outer_weighted_mean == 'time_x_opp_win_pct'
-            elif outer_weighted_mean == 'time_x_opp_win_pct':
-                # generate list of 1 to n for weights
-                list_weights_time = [x for x in range(1, df_home.shape[0]+1)]
-                # get list of opponents
-                list_df_home_opp = list(df_home['away_team'])
-                # get win pct for each team in list_df_home_opp so we can use them as weights
-                list_weights_opp_win_pct = []
-                for opp in list_df_home_opp:
-                    # find index of opp in df_win_pct
-                    index_opp = list(df_win_pct['team']).index(opp)
-                    # get win pct
-                    win_pct = df_win_pct['win_pct'][index_opp]
-                    # append to list
-                    list_weights_opp_win_pct.append(win_pct)
-                # multiply list_weights_time * list_weights_opp_win_pct
-                list_weights = list(np.array(list_weights_time) * np.array(list_weights_opp_win_pct))
-            # else: get all games and assign a weight to gomes where the home team was home i.e. 'all_games_weighted'
-            else:
+            # if using all games
+            if outer_weighted_mean == 'all_games_weighted':
                 # get all the games where the home_team was playing
                 df_home = df[(df['home_team'] == home_team) | (df['away_team'] == home_team)]
                 # rename the columns because it helps some of the logic later
@@ -106,6 +68,27 @@ def game_predictions(home_team_array, home_score_array, away_team_array, away_sc
                 df_home['weights'] = df_home.apply(lambda x: weight_home if x['home_team'] == home_team else 1, axis=1)
                 # save weights
                 list_weights = list(df_home['weights'])
+            # if outer_weighted_mean == 'none'
+            if outer_weighted_mean == 'none':
+                # generate list of 1s for weights
+                list_weights = [1 for x in range(df_home.shape[0])]
+            # if outer_weighted_mean == 'time'
+            elif outer_weighted_mean == 'time':
+                # generate list of 1 to n for weights
+                list_weights = [x for x in range(1, df_home.shape[0]+1)]
+            # outer_weighted_mean == 'opp_win_pct'
+            else: # if outer_weighted_mean == 'opp_win_pct':
+                # get list of opponents
+                list_df_home_opp = list(df_home['away_team'])
+                # get win pct for each team in list_df_home_opp so we can use them as weights
+                list_weights = []
+                for opp in list_df_home_opp:
+                    # find index of opp in df_win_pct
+                    index_opp = list(df_win_pct['team']).index(opp)
+                    # get win pct
+                    win_pct = df_win_pct['win_pct'][index_opp]
+                    # append to list
+                    list_weights.append(win_pct)
             
             # calculate mean of home_score
             home_home_score_mean = np.average(df_home['home_score'], weights=list_weights)
@@ -120,46 +103,8 @@ def game_predictions(home_team_array, home_score_array, away_team_array, away_sc
             # 2. repeat the same steps but using the away team
             # subset to games where away_team == away_team
             df_away = df[df['away_team'] == away_team]
-            # if outer_weighted_mean == 'none'
-            if outer_weighted_mean == 'none':
-                # generate list of 1s for weights
-                list_weights = [1 for x in range(df_away.shape[0])]
-            # if outer_weighted_mean == 'time'
-            elif outer_weighted_mean == 'time':
-                # generate list of 1 to n for weights
-                list_weights = [x for x in range(1, df_away.shape[0]+1)]
-            # outer_weighted_mean == 'opp_win_pct'
-            elif outer_weighted_mean == 'opp_win_pct':
-                # get list of opponents
-                list_df_away_opp = list(df_away['home_team'])
-                # get win pct for each team in list_df_home_opp so we can use them as weights
-                list_weights = []
-                for opp in list_df_away_opp:
-                    # find index of opp in df_win_pct
-                    index_opp = list(df_win_pct['team']).index(opp)
-                    # get win pct
-                    win_pct = df_win_pct['win_pct'][index_opp]
-                    # append to list
-                    list_weights.append(win_pct)
-            # if outer_weighted_mean == 'time_x_opp_win_pct'
-            elif outer_weighted_mean == 'time_x_opp_win_pct': 
-                # generate list of 1 to n for weights
-                list_weights_time = [x for x in range(1, df_away.shape[0]+1)]
-                # get list of opponents
-                list_df_away_opp = list(df_away['home_team'])
-                # get win pct for each team in list_df_home_opp so we can use them as weights
-                list_weights_opp_win_pct = []
-                for opp in list_df_away_opp:
-                    # find index of opp in df_win_pct
-                    index_opp = list(df_win_pct['team']).index(opp)
-                    # get win pct
-                    win_pct = df_win_pct['win_pct'][index_opp]
-                    # append to list
-                    list_weights_opp_win_pct.append(win_pct)
-                # multiply list_weights_time * list_weights_opp_win_pct
-                list_weights = list(np.array(list_weights_time) * np.array(list_weights_opp_win_pct))
-            # else: get all games and assign a weight to gomes where the home team was home i.e. 'all_games_weighted'
-            else:
+            # if using all games
+            if outer_weighted_mean == 'all_games_weighted':
                 # get all the games where the away_team was playing
                 df_away = df[(df['home_team'] == away_team) | (df['away_team'] == away_team)]
                 # rename the columns because it helps some of the logic later
@@ -172,6 +117,27 @@ def game_predictions(home_team_array, home_score_array, away_team_array, away_sc
                 df_away['weights'] = df_away.apply(lambda x: weight_away if x['away_team'] == away_team else 1, axis=1)
                 # save weights
                 list_weights = list(df_away['weights'])
+            # if outer_weighted_mean == 'none'
+            elif outer_weighted_mean == 'none':
+                # generate list of 1s for weights
+                list_weights = [1 for x in range(df_away.shape[0])]
+            # if outer_weighted_mean == 'time'
+            elif outer_weighted_mean == 'time':
+                # generate list of 1 to n for weights
+                list_weights = [x for x in range(1, df_away.shape[0]+1)]
+            # outer_weighted_mean == 'opp_win_pct'
+            else: # if outer_weighted_mean == 'opp_win_pct':
+                # get list of opponents
+                list_df_away_opp = list(df_away['home_team'])
+                # get win pct for each team in list_df_home_opp so we can use them as weights
+                list_weights = []
+                for opp in list_df_away_opp:
+                    # find index of opp in df_win_pct
+                    index_opp = list(df_win_pct['team']).index(opp)
+                    # get win pct
+                    win_pct = df_win_pct['win_pct'][index_opp]
+                    # append to list
+                    list_weights.append(win_pct)
             
             # calculate mean of away_score
             away_away_score_mean = np.average(df_away['away_score'], weights=list_weights)
