@@ -4,6 +4,9 @@ import numpy as np
 
 # define a function
 def game_predictions(home_team_array, home_score_array, away_team_array, away_score_array, home_team, away_team, outer_weighted_mean='none', inner_weighted_mean='none', weight_home=None, weight_away=None, n_simulations=1000):
+    # suppress the SettingWithCopyWarning
+    pd.options.mode.chained_assignment = None
+    
     # put the arrays into a df
     df = pd.DataFrame({'home_team': home_team_array,
                        'home_score': home_score_array,
