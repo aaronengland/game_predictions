@@ -190,7 +190,7 @@ def game_predictions(home_team_array, home_score_array, away_team_array, away_sc
     mean_away_score = np.mean(away_score_prediction_list)
     
     # get winning team
-    if mean_home_score >= mean_away_score:
+    if prop_home_win >= .5:
         winning_team = home_team
     else:
         winning_team = away_team
