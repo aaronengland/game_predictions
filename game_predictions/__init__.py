@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 
 # define a function
-def game_predictions(home_team_array, home_score_array, away_team_array, away_score_array, home_team, away_team, outer_weighted_mean='none', inner_weighted_mean='none', weight_home=None, weight_away=None, n_simulations=1000):
+def game_predictions(home_team_array, home_score_array, away_team_array, away_score_array, home_team, away_team, distribution='poisson', outer_weighted_mean='none', inner_weighted_mean='none', weight_home=None, weight_away=None, n_simulations=1000):
     # suppress the SettingWithCopyWarning
     pd.options.mode.chained_assignment = None
     
@@ -94,12 +94,24 @@ def game_predictions(home_team_array, home_score_array, away_team_array, away_sc
             home_home_score_mean = np.average(df_home['home_score'], weights=list_weights)
             # get mean of away_score
             home_away_score_mean = np.average(df_home['away_score'], weights=list_weights)
-                
-            # draw a random number from a poisson distribution for predicted home score
-            pred_home_home_score = np.random.poisson(home_home_score_mean, 1)
-            # draw a random number from a poisson distribution for predicted away score
-            pred_home_away_score = np.random.poisson(home_away_score_mean, 1)
             
+            # if distribution == 'poisson'
+            if distribution == 'poisson':
+                # draw a random number from a poisson distribution for predicted home score
+                pred_home_home_score = np.random.poisson(home_home_score_mean, 1)
+                # draw a random number from a poisson distribution for predicted away score
+                pred_home_away_score = np.random.poisson(home_away_score_mean, 1)
+            # if distribution == 'normal'
+            else:
+                # calculate sd of home_score (for normal distribution)
+                home_home_score_sd = np.sqrt(np.average((df_home['home_score']-home_home_score_mean)**2, weights=list_weights))
+                # get sd of away_score
+                home_away_score_sd = np.sqrt(np.average((df_home['away_score']-home_away_score_mean)**2, weights=list_weights))
+                # draw a random number from a normal distribution
+                pred_home_home_score = np.random.normal(loc=home_home_score_mean, scale=home_home_score_sd, size=1)
+                # draw a random number from a normal distribution
+                pred_home_away_score = np.random.normal(loc=home_away_score_mean, scale=home_away_score_sd, size=1)
+                
             # 2. repeat the same steps but using the away team
             # subset to games where away_team == away_team
             df_away = df[df['away_team'] == away_team]
@@ -143,12 +155,24 @@ def game_predictions(home_team_array, home_score_array, away_team_array, away_sc
             away_away_score_mean = np.average(df_away['away_score'], weights=list_weights)
             # get mean of home_score
             away_home_score_mean = np.average(df_away['home_score'], weights=list_weights)
-                
-            # draw a random number from a poisson distribution for predicted home score
-            pred_away_away_score = np.random.poisson(away_away_score_mean, 1)
-            # draw a random number from a poisson distribution for predicted away score
-            pred_away_home_score = np.random.poisson(away_home_score_mean, 1)
             
+            # if distribution == 'poisson'
+            if distribution == 'poisson':
+                # draw a random number from a poisson distribution for predicted away score
+                pred_away_away_score = np.random.poisson(away_away_score_mean, 1)
+                # draw a random number from a poisson distribution for predicted home score
+                pred_away_home_score = np.random.poisson(away_home_score_mean, 1)
+            # if distribution == 'normal'
+            else:
+                # calculate sd of home_score (for normal distribution)
+                away_away_score_sd = np.sqrt(np.average((df_away['away_score']-away_away_score_mean)**2, weights=list_weights))
+                # get sd of away_score
+                away_home_score_sd = np.sqrt(np.average((df_away['home_score']-away_home_score_mean)**2, weights=list_weights))
+                # draw a random number from a normal distribution
+                pred_away_away_score = np.random.normal(loc=away_away_score_mean, scale=away_away_score_sd, size=1)
+                # draw a random number from a normal distribution
+                pred_away_home_score = np.random.normal(loc=away_home_score_mean, scale=away_home_score_sd, size=1)
+        
             # 3. now let's have the scores meet in the middle
             # if we want a straight avg
             if inner_weighted_mean == 'none':
