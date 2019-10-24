@@ -4,14 +4,40 @@ A package to predict points scored for the home team and away team as well as ho
 
 To install, use: `pip install git+https://github.com/aaronengland/game_predictions.git`
 
-Key assumptions:
-- `home_team` must have played at least 1 home game prior to prediction.
-- `away_team` must have played at least 1 away game prior to prediction.
-- Argument arrays must be the same length.
-
 How does it work?
 
-The algorithm uses points scored by the home team when they are the home team [1], points allowed by the away team when they are the away team [2], points scored by the away team when they are the away team [3], and points allowed by the home team when they are the home team [4] to generate predictions for home points scored and away points scored.
+At its core, the algorithm is very simple. It estimates the expected points scored and allowed by the home team as well as expected points scored and allowed by the away team. 
+
+The predicted home score is an average of expected points scored by the home team and expected points allowed by the away team. The predicted away score is an average of expected points scored by the away team and expected points allowed by the away team.
+
+Expected points scored by the home team, allowed by the away team, scored by the away team, and allowed by the home team are determined by setting the model's hyperparameters.
+
+Arguments:
+- `home_team_array`: array of the home team for each contest.
+- `home_score_array`: array of the points scored by the home team for each contest.
+- `away_team_array`: array of the away team for each contest.
+- `away_score_array`: array of the points scored by the away team for each contest.
+- `home_team`: string of the home team for the contest in which to predict.
+- `away_team`: string of the home team for the contest in which to predict.
+- `distribution`: distribution from which to draw random numbers (default = 'poisson')
+- `outer_weighted_mean`: method in which to calculate mean home team points scored, away points allowed, away points scored, and home points allowed (options: `all_games_weighted`, `none`, `time`, and `opp_win_pct`).
+  - `all_games_weighted`: all games involving the teams are used for mean points estimation, but are weighted using `weight_home` and/or `weight_away`. For example, if applying a weight to games where the home team is home, we would set the `weight_home` argument to a number greater than 1.
+  - `none`: all games involving the teams are used for mean points estimation, but no weighting will be applied.
+  - `time`: all games involving the teams are used for mean points estimation, but more weight is applied to more recent games.
+- `opp_win_pct`: all games involving the teams are used for mean points estimation, but more weight is applied to games against teams with a greater win percentage.
+- `inner_weighted_mean`: method in which to calculate predicted home points and predicted away points (default = 'none').
+  - `none`: no weight applied to the average of points scored and points allowed.
+  - `win_pct`: average of points scored and points allowed weighted by each team's win percentage.
+- `weight_home`: (default = None).
+- `weight_away`: (default = None).
+- `n_simulations`: (default = 1000).
+
+
+
+
+
+
+It uses points scored by the home team when they are the home team [1], points allowed by the away team when they are the away team [2], points scored by the away team when they are the away team [3], and points allowed by the home team when they are the home team [4] to generate predictions for home points scored and away points scored.
 
 [1] <img src="https://latex.codecogs.com/gif.latex?\lambda&space;_{i}&space;=&space;\mu&space;_{HomePointsScored}" title="\lambda _{i} = \mu _{HomePointsScored}" /></a>
 
