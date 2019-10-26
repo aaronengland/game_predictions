@@ -1,6 +1,6 @@
 # game_predictions
 
-A package to predict points scored for the home team and away team as well as home team win probability based on previous performance.
+A machine learning algorithm to predict points scored for the home team and away team as well as home team win probability based on previous performance.
 
 To install, use: `pip install git+https://github.com/aaronengland/game_predictions.git`
 
