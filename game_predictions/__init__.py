@@ -12,7 +12,7 @@ def game_predictions(home_team_array, home_score_array, away_team_array, away_sc
                        'home_score': home_score_array,
                        'away_team': away_team_array,
                        'away_score': away_score_array})
-    # drtop the unplayed games
+    # drop the unplayed games
     df = df.dropna(subset=['home_score'])
     
     # define function for deciding winning team
