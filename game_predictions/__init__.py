@@ -4,7 +4,7 @@ import numpy as np
 import wquantiles as weighted
 
 # define a function
-def game_predictions(df, home_team, away_team, central_tendency='median', distribution='poisson', inner_weighted_mean='none', weight_home=1, weight_away=1, n_simulations=1000):
+def game_predictions(df, home_team, away_team, central_tendency='mean', distribution='poisson', inner_weighted_mean='none', weight_home=1, weight_away=1, n_simulations=1000):
     # drop week col
     df.drop(['week'], axis=1, inplace=True)
     # suppress the SettingWithCopyWarning
