@@ -6,7 +6,7 @@ import wquantiles as weighted
 # define a function
 def game_predictions(df, home_team, away_team, central_tendency='mean', distribution='poisson', inner_weighted_mean='none', weight_home=1, weight_away=1, n_simulations=1000):
     # drop week col
-    df.drop(['week'], axis=1, inplace=True)
+    #df.drop(['week'], axis=1, inplace=True)
     # suppress the SettingWithCopyWarning
     pd.options.mode.chained_assignment = None
     # drop unplayed games
@@ -40,7 +40,7 @@ def game_predictions(df, home_team, away_team, central_tendency='mean', distribu
     # 1. get all the games where the home_team was playing
     df_home = df[(df['home_team'] == home_team) | (df['away_team'] == home_team)]
     # rename the columns because it helps some of the logic later
-    df_home.columns = ['home_team','away_team','home_pts','away_pts','winning_team']
+    df_home.columns = ['week','home_team','away_team','home_pts','away_pts','winning_team']
     # get points scored by home team (name the col home_score so it will match with the other logic we have)
     df_home['home_score'] = df_home.apply(lambda x: x['home_pts'] if x['home_team'] == home_team else x['away_pts'], axis=1)
     # get the points allowed by the home team
@@ -89,7 +89,7 @@ def game_predictions(df, home_team, away_team, central_tendency='mean', distribu
     # get all the games where the away_team was playing
     df_away = df[(df['home_team'] == away_team) | (df['away_team'] == away_team)]
     # rename the columns because it helps some of the logic later
-    df_away.columns = ['home_team','away_team','home_pts','away_pts','winning_team']
+    df_away.columns = ['week','home_team','away_team','home_pts','away_pts','winning_team']
     # get points scored by away team (name the col away_score so it will match with the other logic we have)
     df_away['away_score'] = df_away.apply(lambda x: x['away_pts'] if x['away_team'] == away_team else x['home_pts'], axis=1)
     # get the points allowed by the home team
