@@ -182,9 +182,9 @@ def game_predictions(df, home_team, away_team, central_tendency='mean', distribu
     prop_home_win = sum_home_wins/n_simulations
 
     # get mean home score
-    mean_home_score = np.mean(df_predictions['pred_home_score'])
+    mean_home_score = round(np.mean(df_predictions['pred_home_score']), 3)
     # get mean away score
-    mean_away_score = np.mean(df_predictions['pred_away_score'])
+    mean_away_score = round(np.mean(df_predictions['pred_away_score']), 3)
     
     # get winning team
     if prop_home_win >= .5:
