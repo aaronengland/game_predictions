@@ -42,7 +42,7 @@ def game_predictions(df, home_team, away_team, last_n_games='all', central_tende
     if last_n_games == 'all':
         df_home = df_home
     else:
-        df_home = df_home.iloc[:last_n_games]
+        df_home = df_home.iloc[last_n_games:]
     
     # rename the columns because it helps some of the logic later
     df_home.rename(columns={'home_score':'home_pts', 'away_score':'away_pts'}, inplace=True)
@@ -98,7 +98,7 @@ def game_predictions(df, home_team, away_team, last_n_games='all', central_tende
     if last_n_games == 'all':
         df_away = df_away
     else:
-        df_away = df_away.iloc[:last_n_games]
+        df_away = df_away.iloc[last_n_games:]
 
     # rename the columns because it helps some of the logic later
     df_away.rename(columns={'home_score':'home_pts', 'away_score':'away_pts'}, inplace=True)
