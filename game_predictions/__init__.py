@@ -4,7 +4,7 @@ import numpy as np
 import wquantiles as weighted
 
 # define a function
-def game_predictions(df, home_team, away_team, central_tendency='mean', distribution='poisson', inner_weighted_mean='none', weight_home=1, weight_away=1, n_simulations=1000):
+def game_predictions(df, home_team, away_team, last_n_games='all', central_tendency='mean', distribution='poisson', inner_weighted_mean='none', weight_home=1, weight_away=1, n_simulations=1000):
     # suppress the SettingWithCopyWarning
     pd.options.mode.chained_assignment = None
     # drop unplayed games
@@ -37,6 +37,13 @@ def game_predictions(df, home_team, away_team, central_tendency='mean', distribu
 
     # 1. get all the games where the home_team was playing
     df_home = df[(df['home_team'] == home_team) | (df['away_team'] == home_team)]
+    
+    # use last n_gameas
+    if last_n_games == 'all':
+        df_home = df_home
+    else:
+        df_home = df_home.iloc[:last_n_games]
+    
     # rename the columns because it helps some of the logic later
     df_home.rename(columns={'home_score':'home_pts', 'away_score':'away_pts'}, inplace=True)
     # get points scored by home team (name the col home_score so it will match with the other logic we have)
@@ -86,6 +93,13 @@ def game_predictions(df, home_team, away_team, central_tendency='mean', distribu
     df_away = df[df['away_team'] == away_team]
     # get all the games where the away_team was playing
     df_away = df[(df['home_team'] == away_team) | (df['away_team'] == away_team)]
+    
+    # use last n_gameas
+    if last_n_games == 'all':
+        df_away = df_away
+    else:
+        df_away = df_away.iloc[:last_n_games]
+
     # rename the columns because it helps some of the logic later
     df_away.rename(columns={'home_score':'home_pts', 'away_score':'away_pts'}, inplace=True)
     # get points scored by away team (name the col away_score so it will match with the other logic we have)
