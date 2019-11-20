@@ -38,7 +38,12 @@ def game_predictions(df, home_team, away_team, last_n_games='all', central_tende
     # 1. get all the games where the home_team was playing
     df_home = df[(df['home_team'] == home_team) | (df['away_team'] == home_team)]
     
-    # use last n_gameas
+    # to prevent errors
+    # get n_rows
+    n_rows = df_home.shape[0]
+    if last_n_games > n_rows:
+        last_n_games = n_rows
+    # use last n_games
     if last_n_games == 'all':
         df_home = df_home
     else:
@@ -94,7 +99,12 @@ def game_predictions(df, home_team, away_team, last_n_games='all', central_tende
     # get all the games where the away_team was playing
     df_away = df[(df['home_team'] == away_team) | (df['away_team'] == away_team)]
     
-    # use last n_gameas
+    # to prevent errors
+    # get n_rows
+    n_rows = df_away.shape[0]
+    if last_n_games > n_rows:
+        last_n_games = n_rows
+    # use last n_games
     if last_n_games == 'all':
         df_away = df_away
     else:
