@@ -4,7 +4,7 @@ import numpy as np
 import wquantiles as weighted
 
 # define a function
-def game_predictions(df, home_team, away_team, last_n_games='all', central_tendency='mean', distribution='poisson', inner_weighted_mean='none', weight_home=1, weight_away=1, n_simulations=1000):
+def game_predictions(df, home_team, away_team, last_n_games='all', outer_opp_win_pct=True, central_tendency='mean', distribution='poisson', inner_opp_win_pct=True, weight_home=1, weight_away=1, n_simulations=1000):
     # suppress the SettingWithCopyWarning
     pd.options.mode.chained_assignment = None
     # drop unplayed games
@@ -34,6 +34,8 @@ def game_predictions(df, home_team, away_team, last_n_games='all', central_tende
     # match win_pct with team
     df_win_pct = pd.DataFrame({'team': list_teams_unique,
                                'win_pct': list_win_pct})
+    
+    # -------------------------------------------------------------------------
 
     # 1. get all the games where the home_team was playing
     df_home = df[(df['home_team'] == home_team) | (df['away_team'] == home_team)]
@@ -41,7 +43,7 @@ def game_predictions(df, home_team, away_team, last_n_games='all', central_tende
     # to prevent errors
     # get n_rows
     n_rows = df_home.shape[0]
-    if last_n_games > n_rows:
+    if (last_n_games != 'all') and last_n_games > n_rows:
         last_n_games = n_rows
     # use last n_games
     if last_n_games == 'all':
@@ -57,6 +59,16 @@ def game_predictions(df, home_team, away_team, last_n_games='all', central_tende
     df_home['away_score'] = df_home.apply(lambda x: x['home_pts'] if x['home_team'] != home_team else x['away_pts'], axis=1)
     # mark games where the home_team is home with a number (i.e., 2)
     df_home['weights'] = df_home.apply(lambda x: weight_home if x['home_team'] == home_team else 1, axis=1)
+    
+    # if we choose to weight each game by the opponents win %
+    if outer_opp_win_pct == True:
+        # get the name of the opponent
+        df_home['opponent_name'] = df_home.apply(lambda x: x['home_team'] if x['away_team'] == home_team else x['away_team'], axis=1)
+        # merge with df_win_pct to get opponent win %
+        df_home = pd.merge(left=df_home, right=df_win_pct, left_on='opponent_name', right_on='team', how='left')
+        # multiply 'weights' by 'win_pct'
+        df_home['weights'] = df_home['weights'] * df_home['win_pct']
+        
     # save weights
     list_weights = list(df_home['weights'])
     # some logic to catch errors
@@ -91,18 +103,17 @@ def game_predictions(df, home_team, away_team, last_n_games='all', central_tende
         list_pred_home_home_score = list(np.random.normal(loc=home_home_score_avg, scale=home_home_score_sd, size=n_simulations))
         # draw a random number from a normal distribution
         list_pred_home_opponent_score = list(np.random.normal(loc=home_opponent_score_avg, scale=home_opponent_score_sd, size=n_simulations))
-       
-        
+    
+    # -------------------------------------------------------------------------
+    
     # 2. repeat the same steps but using the away team
-    # subset to games where away_team == away_team
-    df_away = df[df['away_team'] == away_team]
     # get all the games where the away_team was playing
     df_away = df[(df['home_team'] == away_team) | (df['away_team'] == away_team)]
     
     # to prevent errors
     # get n_rows
     n_rows = df_away.shape[0]
-    if last_n_games > n_rows:
+    if (last_n_games != 'all') and (last_n_games > n_rows):
         last_n_games = n_rows
     # use last n_games
     if last_n_games == 'all':
@@ -118,6 +129,16 @@ def game_predictions(df, home_team, away_team, last_n_games='all', central_tende
     df_away['home_score'] = df_away.apply(lambda x: x['away_pts'] if x['away_team'] != away_team else x['home_pts'], axis=1)
     # mark games where the away_team is away with a number (i.e., 2)
     df_away['weights'] = df_away.apply(lambda x: weight_away if x['away_team'] == away_team else 1, axis=1)
+    
+    # if we choose to weight each game by the opponents win %
+    if outer_opp_win_pct == True:
+        # get the name of the opponent
+        df_away['opponent_name'] = df_away.apply(lambda x: x['away_team'] if x['home_team'] == away_team else x['home_team'], axis=1)
+        # merge with df_win_pct to get opponent win %
+        df_away = pd.merge(left=df_away, right=df_win_pct, left_on='opponent_name', right_on='team', how='left')
+        # multiply 'weights' by 'win_pct'
+        df_away['weights'] = df_away['weights'] * df_away['win_pct']
+    
     # save weights
     list_weights = list(df_away['weights'])
     # some logic to catch errors
@@ -161,7 +182,7 @@ def game_predictions(df, home_team, away_team, last_n_games='all', central_tende
 
     # 3. now let's have the scores meet in the middle
     # if we want a straight avg
-    if inner_weighted_mean == 'none':
+    if inner_opp_win_pct == False:
         list_weights = [1 for x in range(1, 3)]
     # if we want to weight in terms of win pct
     else:
