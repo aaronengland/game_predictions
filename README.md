@@ -16,9 +16,11 @@ Arguments:
 - `df`: data frame returned from `scrape_schedule` algorithm in `nfl_predictions` and `nba_predictions`.
 - `home_team`: string of the home team for the contest in which to predict.
 - `away_team`: string of the home team for the contest in which to predict.
+- `last_n_games`: integer value for number of games to subset (note: 'all' will use all games; default = `'all'`).
+- `outer_opp_win_pct`: Boolean whether or not to weight games by opponent win percentage (default = `True`).
 - `central_tendency`: string of the central tendency in which to use (options: `mean`, `median`; default = `mean`).
 - `distribution`: distribution from which to draw random numbers (options: `poisson`, `normal`; default = 'poisson')
-- `inner_weighted_mean`: method in which to calculate predicted home points and predicted away points (options: `none`, `win_pct`; default = 'none').
+- `inner_opp_win_pct`: Boolean whether or not to calculate predicted home points and predicted away points using win percentage (default = `True`).
 - `weight_home`: integer weight to apply to the games when the home team is the home team (default = 1).
 - `weight_away`: integer weight tyo apply to the games when the away team is the away team (default = 1).
 - `n_simulations`: number of random draws (default = 1000).
@@ -42,9 +44,11 @@ df = scrape_schedule(year=2019)
 game_simulation = game_predictions(df=df, 
                                    home_team='Chicago Bears', 
                                    away_team='Philadelphia Eagles',
+                                   last_n_games_home='all',
+                                   outer_opp_win_pct=True,
                                    central_tendency='mean',
                                    distribution='poisson',
-                                   inner_weighted_mean='none',
+                                   inner_opp_win_pct=True,
                                    weight_home=2,
                                    weight_away=3,
                                    n_simulations=1000)
