@@ -173,13 +173,17 @@ def game_predictions(df, home_team, away_team, last_n_games='all', outer_opp_win
         list_pred_away_away_score = list(np.random.normal(loc=away_away_score_avg, scale=away_away_score_sd, size=n_simulations))
         # draw a random number from a normal distribution
         list_pred_away_opponent_score = list(np.random.normal(loc=away_opponent_score_avg, scale=away_opponent_score_sd, size=n_simulations))
-
+    
+    # -------------------------------------------------------------------------
+    
     # put into a df
     df_predictions = pd.DataFrame({'pred_home_home_score': list_pred_home_home_score,
                                    'pred_home_opponent_score': list_pred_home_opponent_score,
                                    'pred_away_away_score': list_pred_away_away_score,
                                    'pred_away_opponent_score': list_pred_away_opponent_score})
-
+    
+    # -------------------------------------------------------------------------
+    
     # 3. now let's have the scores meet in the middle
     # if we want a straight avg
     if inner_opp_win_pct == False:
