@@ -14,15 +14,15 @@ Expected points scored by the home team, allowed by the away team, scored by the
 
 Arguments:
 - `df`: data frame returned from `scrape_schedule` algorithm in `nfl_predictions` and `nba_predictions`.
-- `home_team`: string of the home team for the contest in which to predict.
-- `away_team`: string of the home team for the contest in which to predict.
-- `last_n_games`: integer value for number of games to subset (note: 'all' will use all games; default = `'all'`).
+- `home_team`: string of the home team for the contest in which to predict (example: `'New England Patriots'`).
+- `away_team`: string of the home team for the contest in which to predict (example: `'New York Jets'`).
+- `last_n_games`: integer value for number of games to subset (note: `'all'` will use all games; default = `'all'`).
 - `outer_opp_win_pct`: Boolean whether or not to weight games by opponent win percentage (default = `True`).
 - `central_tendency`: string of the central tendency in which to use (options: `mean`, `median`; default = `'mean'`).
 - `distribution`: distribution from which to draw random numbers (options: `poisson`, `normal`; default = `'poisson'`)
 - `inner_opp_win_pct`: Boolean whether or not to calculate predicted home points and predicted away points using win percentage (default = `True`).
 - `weight_home`: integer weight to apply to the games when the home team is the home team (default = `1`).
-- `weight_away`: integer weight tyo apply to the games when the away team is the away team (default = `1`).
+- `weight_away`: integer weight to apply to the games when the away team is the away team (default = `1`).
 - `n_simulations`: number of random draws (default = `1000`).
 
 Returned is a dictionary containing:
